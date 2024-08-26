@@ -5,7 +5,7 @@ using namespace std;
 char menu(){
     char x[2];
     cout<<"Main Menu:"<<endl;
-    cout<<"1.)Euleurs Approximation Calculator"<<endl;
+    cout<<"1.)Euleurs Method Approximator"<<endl;
     cout<<"2.)Power Series Calculator"<<endl;
     cout<<"E.)Exit Application"<<endl;
     cin>>x[0];
@@ -18,7 +18,9 @@ int main(){
         input[0] = menu();
         switch(input[0]){
             case '1':
-            cout<<"Eulers Calculator!\n"<<endl;
+            cout<<"Eulers Method Approximator!\n"<<endl;
+            eulers approximator;
+            approximator.start();
             break;
                 case '2':
                 cout<<"SERIES Calculator!\n"<<endl;
