@@ -17,11 +17,12 @@ int main(){
     while(input[0] != 'E' && input[0] != 'e'){
         input[0] = menu();
         switch(input[0]){
-            case '1':
+            case '1':{
             cout<<"Eulers Method Approximator!\n"<<endl;
             eulers approximator;
             approximator.start();
             break;
+            }
                 case '2':
                 cout<<"SERIES Calculator!\n"<<endl;
                 break;
