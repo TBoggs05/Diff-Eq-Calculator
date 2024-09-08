@@ -1,15 +1,14 @@
-#include <iostream>
 #include "eulers.h"
 using namespace std;
 
 char menu(){
-    char x[2];
+    char x;
     cout<<"Main Menu:"<<endl;
-    cout<<"1.)Euleurs Method Approximator"<<endl;
+    cout<<"1.)Eulers Method Approximator"<<endl;
     cout<<"2.)Power Series Calculator"<<endl;
     cout<<"E.)Exit Application"<<endl;
-    cin>>x[0];
-    return x[0];
+    cin>>x;
+    return x;
 }
 
 int main(){
@@ -23,9 +22,10 @@ int main(){
             approximator.start();
             break;
             }
-                case '2':
+                case '2':{
                 cout<<"SERIES Calculator!\n"<<endl;
                 break;
+                }
                     case 'E':
                     case 'e':
                     cout<<"Exiting...\n"<<endl;

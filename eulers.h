@@ -1,16 +1,25 @@
 #ifndef _EULERS_H_
 #define _EULERS_H_
+#include <iostream>
+#include <string>
+#include <vector>
+#include <stack>
 class eulers{
 public:
-    void start(); //requests inputs and calls the calculate() function. takes return of that function and displays.
-    void parse(string equation); // parses the f(x,y) function and give us a mathematical function for us to use.
+    void start(); //calls all the other functions into place.
     eulers(); // constructor. 
-    double calculate(); //calculate the solution at some h domain/h times.
-
 private:
-    string equation;//y'
+    std::string equation;//y'
     double h;//step
     double x_initial, y_initial, x_upper_limit; //domain and y initial
+    std::vector<int> x_indexes;//indexes of x in equation.
+    std::vector<int> y_indexes;//indexes of y in equation
+    //Internal/Helper Functions
+    void var_search();//store indexes of variables in string.
+    void read_input(); //read input from the user
+    bool check_valid();//checks for valid equation, inputs and cases such as step passing upper limit and xinitial > upper_limit.
+    double find_derivative(); //calculate y' after substituting variables.
+    double eulers_calculate();//recursively finds the numerical solution using eulers method. returns value at upper limit of discreted domain.
 };
 
 
