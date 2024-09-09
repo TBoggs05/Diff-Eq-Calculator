@@ -1,6 +1,8 @@
 #include "eulers.h"
 /*Default Constructor*/
 eulers::eulers(){}
+/*Default Destructor*/
+eulers::~eulers(){}
 /*
 Start Function
 Function used to start running the calculator
@@ -56,7 +58,7 @@ Implicit Multiplication Function
 -tokenizes operators, variables, numbers.
 
 */
-bool eulers::implicit_multiplication(){
+bool eulers::handle_implicit_multiplication(){
 
 }
 
@@ -92,7 +94,9 @@ for(int i = 0; i < equation.size(); i++){
         //do nothing. whitespace.
     }
     //is digit
-    else if(equation[i])
+    else if(equation[i]){
+
+    }
 }
 
 
@@ -101,7 +105,7 @@ equation = postfix;
 if(parentheses_stack.empty() && termBalanceCount == 0)
 return true;
 else{
-std::cout<<"Invalid Equation. Make sure parentheses are balanced and every two terms is separated by an operator."
+std::cout<<"Invalid Equation. Make sure parentheses are balanced and every two terms is separated by an operator."<<std::endl;
 return false;
 }
 
@@ -112,14 +116,50 @@ Find Derivative Function
 -calculates solution for y'
 @RETURN DOUBLE
 */
-double eulers::find_derivative(){
+double eulers::find_derivative(std::string postfix){
 double dy = 0;
 std::stack<double> operandStack;
-for(int i = 0; i < equation.size(); i++){
-    //if whitespace, do nothing
+for(int i = 0; i < postfix.size(); i++){
+    if(postfix[i] == ' '){/*do nothing. Whitespace.*/}
+        //pushes x value onto stack
+        else if(postfix[i] == 'x' || postfix[i] == 'X'){
+            operandStack.push(this->x_initial); 
+        }
+            //pushes y value onto stack
+            else if(postfix[i] == 'y' || postfix[i] == 'Y'){
+                operandStack.push(this->y_initial); 
+            }
+                // will push the value of e^1 onto stack. 
+                else if(postfix[i] == 'e'){
+                    operandStack.push(std::exp(1.0)); 
+                }
+                    //handles converting multi digit values from string to double, including decimals.
+                    else if(std::isdigit(postfix[i]) || postfix[i] == '.'){ 
+                        double value = 0;
+                        while(std::isdigit(postfix[i])){
+                        value*=10 + (postfix[i]-'0');
+                        i++;
+                        }
+                        //POTENTIAL ISSUE: if there is a weird input after the decimal place or just before (i.e x.17 or 1.x or 1.  71),
+                        //We could potentially have very weird or breaking outputs here. THIS SHOULD BE HANDLED IN THE VALIDATION CHECKS WHEN CONVERTING TO POSTFIX <3
+                        if(postfix[i] == '.'){ 
+                            i++;//move past decimal.
+                            int placecount = 1;
+                            while(std::isdigit(postfix[i])){
+                                value += (1/(10*placecount++)) * (postfix[i] - '0');
+                                i++;
+                            }
+                        }
+                        operandStack.push(value); i--; //decrement to stop weird behaviour.
+                    }
+                        else if(postfix[i] == 'p' || postfix[i] == 'P'){ //push pi onto thing.
+                            if(i+1 < postfix.size()){
+                                if(postfix[i+1] == 'i' || postfix[i+1] == 'I'){
+                                    operandStack.push(M_PI);
+                                }
+                            }
+                        }
 
-    //if term, loop thru and evaluate the term
-    //I.E handle functions, variables, numbers, etc. 
 }
 return dy;
 }
@@ -135,9 +175,9 @@ double eulers::eulers_calculate(){
         return y_initial;
     }    
     else{
-            y_initial = y_initial + h * find_derivative();
+            y_initial = y_initial + h * find_derivative(equation);
             std::cout<<"Y("<<x_initial<<") = "<<y_initial<<std::endl;
             x_initial+=h;
-            return 0;
+            return 0;//return eulers_calculate();
     }
 }
