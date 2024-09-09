@@ -3,10 +3,10 @@ using namespace std;
 
 char menu(){
     char x;
-    cout<<"Main Menu:"<<endl;
-    cout<<"1.)Eulers Method Approximator"<<endl;
-    cout<<"2.)Power Series Calculator"<<endl;
-    cout<<"E.)Exit Application"<<endl;
+    cout<<"Select Method to Solve Differential Equation:"<<endl;
+    cout<<"1.)Eulers Method(Numerical Solution/Approximation)"<<endl;
+    cout<<"2.)Taylor's Method(Power Series Solution)"<<endl;
+    cout<<"E.)Exit"<<endl;
     cin>>x;
     return x;
 }
@@ -17,7 +17,6 @@ int main(){
         input[0] = menu();
         switch(input[0]){
             case '1':{
-            cout<<"Eulers Method Approximator!\n"<<endl;
             eulers approximator;
             approximator.start();
             break;

@@ -1,18 +1,18 @@
 #include "eulers.h"
-/*
-Default Constructor
-*/
-eulers::eulers(){ }
+/*Default Constructor*/
+eulers::eulers(){}
 /*
 Start Function
 Function used to start running the calculator
 @VOID
 */
-void eulers::start(){ 
+void eulers::start()
+{ 
+std::cout<<"Eulers Method:"<<std::endl;
 read_input(); 
-var_search();
-check_valid();
-eulers_calculate();
+if(convert_to_postfix()){
+    eulers_calculate();
+}
 }
 /*
 Read_Input Function
@@ -51,50 +51,76 @@ void eulers::read_input()
                     }
 }
 /*
-var_search function
--stores indexes of variables in equation string.
+Implicit Multiplication Function
+-Loops through string
+-tokenizes operators, variables, numbers.
+
 */
-void eulers::var_search(){
-    for(int i = 0; i < equation.length();i++){
-        if(equation[i] == 'X' || equation[i] == 'x'){ //replace X
-            x_indexes.push_back(i);
-        }
-        else if(equation[i] == 'Y' || equation[i] == 'y'){ //replace Y
-            y_indexes.push_back(i);
-        }
-    }
+bool eulers::implicit_multiplication(){
+
 }
+
 /*
-Check Valid Function
+Convert To Postfix Button
+-Converts the problem to postifx form
 -checks that everything in the inputs are valid
 -Xinitial <= XFinal
 -Step will not intersect XFinal
--Equation includes no invalid characters, terms, etc.
+-valid parentheses
+-balanced operators and operands (operators = operands-1)
+-check the validity of individual terms, I.E valid functions, values, and variables.
+-Handle implicit multiplication I.E converting 3(x) or 3x or 3(12) into a valid multiplication of values.
 @RETURN BOOL
 */
-bool eulers::check_valid(){
+bool eulers::convert_to_postfix(){
 if(x_initial >= x_upper_limit){
-    std::cout<<"Invalid. Upper limit must be greater than x.";
+    std::cout<<"Invalid. Upper limit must be greater than x."<<std::endl;
     return false;
 }
 else if(h == 0 || ((x_upper_limit - x_initial) / h != 0)){
-    std::cout<<"Step value not valid for domain. Must solve for final X"<<std::endl;
+    std::cout<<"Invalid. Must solve for final X"<<std::endl;
     return false;
 }
-//TODO: search string for invalid values.
-//maybe use string set or hashp map for this task.
 
+//convert to postfix
+std::string postfix = "";
+std::stack<char> parentheses_stack;
+int termBalanceCount = 0;
+for(int i = 0; i < equation.size(); i++){
+    //is whitespace
+    if(equation[i] == ' '){
+        //do nothing. whitespace.
+    }
+    //is digit
+    else if(equation[i])
+}
+
+
+
+equation = postfix;
+if(parentheses_stack.empty() && termBalanceCount == 0)
 return true;
+else{
+std::cout<<"Invalid Equation. Make sure parentheses are balanced and every two terms is separated by an operator."
+return false;
+}
+
 }
 /*
 Find Derivative Function
--just plugs in our current x and y values, then returns a double representing y'.
+-plugs in our current x and y values
+-calculates solution for y'
 @RETURN DOUBLE
 */
 double eulers::find_derivative(){
 double dy = 0;
 std::stack<double> operandStack;
-std::stack<char> operatorStack;
+for(int i = 0; i < equation.size(); i++){
+    //if whitespace, do nothing
+
+    //if term, loop thru and evaluate the term
+    //I.E handle functions, variables, numbers, etc. 
+}
 return dy;
 }
 /*
@@ -103,16 +129,15 @@ Eulers Calculate Function
 @RETURNS DOUBLE
 */
 double eulers::eulers_calculate(){
-    std::cout<<"calculating.."<<std::endl;
-if(x_initial > x_upper_limit){
-    std::cout<<"The numerical solution of Y("<<x_upper_limit<<") is "<<y_initial<<std::endl;
-    return y_initial;
-}    
-else{
-    std::string tempEquation = equation;
-        y_initial = y_initial + h * find_derivative();
-        std::cout<<"Y("<<x_initial<<") = "<<y_initial<<std::endl;
-        x_initial+=h;
-        return 0;
-}
+ std::cout<<"calculating.."<<std::endl;
+    if(x_initial > x_upper_limit){
+        std::cout<<"The numerical solution of Y("<<x_upper_limit<<") is "<<y_initial<<std::endl;
+        return y_initial;
+    }    
+    else{
+            y_initial = y_initial + h * find_derivative();
+            std::cout<<"Y("<<x_initial<<") = "<<y_initial<<std::endl;
+            x_initial+=h;
+            return 0;
+    }
 }
