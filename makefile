@@ -1,4 +1,4 @@
-CC = clang++
+CC = clang++ -std=c++11
 
 all: mainRunner
 

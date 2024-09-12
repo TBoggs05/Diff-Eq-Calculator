@@ -1,6 +1,102 @@
 #include "eulers.h"
+//SUPLEMENTAL FUNCTIONS.
+double sec(double x){
+    return 1/cos(x);
+}
+double csc(double x){
+    return 1/sin(x);
+}
+double cot(double x){
+    return 1/tan(x);
+}
+double sech(double x){
+    return 1/cosh(x);
+}
+double csch(double x){
+    return 1/sinh(x);
+}
+double coth(double x){
+    return 1/tanh(x);
+}
+double asec(double x){
+    return acos(1/x);
+}
+double acsc(double x){
+    return asin(1/x);
+}
+double acot(double x){
+    return atan(1/x);
+}
+double asech(double x){
+    return 1/cosh(x);
+}
+double acsch(double x){
+    return 1/sinh(x);
+}
+double acoth(double x){
+    return 1/tanh(x);
+}
+double log_base(double x, double b){
+    return log(x) / log(b); //use change of base formula.
+}
 /*Default Constructor*/
-eulers::eulers(){}
+eulers::eulers(){
+// Initialize the map with standard math functions. uses static_cast<double(*)(double)> to handle 
+// ambiguity between different math sin functions, forcing the compiler to see this as a function pointer 
+// passed and returning a double.
+
+    //trig.
+    mathFunctions["sin"] = static_cast<double(*)(double)>(sin);
+    mathFunctions["cos"] = static_cast<double(*)(double)>(cos);
+    mathFunctions["tan"] = static_cast<double(*)(double)>(tan);
+    //inverse trig.
+    mathFunctions["asin"] = static_cast<double(*)(double)>(asin);
+    mathFunctions["acos"] = static_cast<double(*)(double)>(acos);
+    mathFunctions["atan"] = static_cast<double(*)(double)>(atan);
+    //hyperbolic trig.
+    mathFunctions["sinh"] = static_cast<double(*)(double)>(sinh);
+    mathFunctions["cosh"] = static_cast<double(*)(double)>(cosh);
+    mathFunctions["tanh"] = static_cast<double(*)(double)>(tanh);
+    //inverse hyperbolic trig.
+    mathFunctions["asinh"] = static_cast<double(*)(double)>(asinh);
+    mathFunctions["acosh"] = static_cast<double(*)(double)>(acosh);
+    mathFunctions["atanh"] = static_cast<double(*)(double)>(atanh);
+
+    //sqrt, logarithms, absolute value, and exponential functions.
+    mathFunctions["sqrt"] = static_cast<double(*)(double)>(sqrt);// Square Root (sqrt)
+    mathFunctions["ln"] = static_cast<double(*)(double)>(log);// Natural log (ln)
+    mathFunctions["log"] = static_cast<double(*)(double)>(log10);// Logarithm base 10
+    mathFunctions["exp"] = static_cast<double(*)(double)>(exp);// Exponential function
+    mathFunctions["abs"] = static_cast<double(*)(double)>(abs);// Absolute value (floating point)
+    
+    //special log cases of base 2 and base 5 (if u have a weirder case just convert it urself and stfu.)
+    //lambda expression notation: our map for value 1 = [capture](parameters) -> return type { function body}
+    //essentially creating a mini function capturing(copying) nothing, passed a double to it, and return a call to our custom log function as a double.
+    mathFunctions["log2"] = [](double x) -> double { return log_base(x, 2); };
+    mathFunctions["log5"] = [](double x) -> double { return log_base(x, 5); };
+
+    //sec, cos, cot (Since its our custom functions, theres no ambiguity therefore we cast as MathFunction.)
+     mathFunctions["sec"] = static_cast<MathFunction>(sec);
+     mathFunctions["csc"] = static_cast<MathFunction>(csc);
+     mathFunctions["cot"] = static_cast<MathFunction>(cot);
+
+     //asec, acos, acot
+     mathFunctions["asec"] = static_cast<MathFunction>(asec);
+     mathFunctions["acsc"] = static_cast<MathFunction>(acsc);
+     mathFunctions["acot"] = static_cast<MathFunction>(acot);
+
+     //hyperbolic sec, cos, cot
+     mathFunctions["sech"] = static_cast<MathFunction>(sech);
+     mathFunctions["csch"] = static_cast<MathFunction>(csch);
+     mathFunctions["coth"] = static_cast<MathFunction>(coth);
+
+     //inverse hyperbolic sec, cos, cot
+     mathFunctions["asech"] = static_cast<MathFunction>(asech);
+     mathFunctions["acsch"] = static_cast<MathFunction>(acsch);
+     mathFunctions["acoth"] = static_cast<MathFunction>(acoth);
+}   
+
+
 /*Default Destructor*/
 eulers::~eulers(){}
 /*
@@ -59,7 +155,7 @@ Implicit Multiplication Function
 
 */
 bool eulers::handle_implicit_multiplication(){
-
+return true;
 }
 
 /*
@@ -157,9 +253,69 @@ for(int i = 0; i < postfix.size(); i++){
                                 if(postfix[i+1] == 'i' || postfix[i+1] == 'I'){
                                     operandStack.push(M_PI);
                                 }
+                                else{
+                                    return -1; //error case. should be handled by other functions, if not I will implement some try/catches if that idea changes.
+                                }
                             }
                         }
+                            else if(std::isalpha(postfix[i])){//valid alpha that isnt above cases, so must be function.
+                                std::string s = " ";
+                                    while(i < postfix.size() && std::isalpha(postfix[i])){
+                                        s+=postfix[i++];
+                                    }
+                                    //TODO: IMPLEMENT MAP.
 
+
+                            }   //operator. Do the calculation
+                                else if(postfix[i] == '+' || postfix[i] == '-' || postfix[i] == '/' || postfix[i] == '*' || postfix[i] == '^'){
+                                    double term1;
+                                    double term2;
+                                    switch(postfix[i]){
+                                        case '+':
+                                            term1 = operandStack.top();
+                                                operandStack.pop();
+                                            term2 = operandStack.top();
+                                                operandStack.pop();
+                                            operandStack.push(term1+term2);
+                                                break;
+                                        case '-':
+                                            term1 = operandStack.top();
+                                                operandStack.pop();
+                                            term2 = operandStack.top();
+                                                operandStack.pop();
+                                            operandStack.push(term2-term1);
+                                                break;
+                                        case '/':
+                                            term1 = operandStack.top();
+                                                operandStack.pop();
+                                            term2 = operandStack.top();
+                                                operandStack.pop();
+                                            operandStack.push(term2/term1);
+                                                break;
+                                        case '*':
+                                            term1 = operandStack.top();
+                                                operandStack.pop();
+                                            term2 = operandStack.top();
+                                                operandStack.pop();
+                                            operandStack.push(term1*term2);
+                                                break;
+                                        case '^':
+                                             term1 = operandStack.top();
+                                                operandStack.pop();
+                                             term2 = operandStack.top();
+                                                operandStack.pop();
+                                            operandStack.push(pow(term2, term1));
+                                                break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
+}
+dy = operandStack.top();
+    operandStack.pop();
+if(!operandStack.empty()){
+    //throw error
 }
 return dy;
 }

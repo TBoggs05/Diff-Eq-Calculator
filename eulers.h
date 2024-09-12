@@ -7,6 +7,10 @@
 #include <stack>
 #include <math.h>
 #include <cmath>
+#include <map>
+#include <functional>
+
+using MathFunction = std::function<double(double)>; //define namespace for our function map.
 class eulers{
 public:
     void start(); //calls all the other functions into place.
@@ -16,6 +20,8 @@ private:
     std::string equation;//y'
     double h;//step
     double x_initial, y_initial, x_upper_limit; //domain and y initial
+    std::map<std::string, MathFunction> mathFunctions; //map of all allowed functions in y'.
+
     //Internal/Helper Functions
     bool handle_implicit_multiplication();//function will return true when completed. loops thru string and inserts multiplciation operators.
     void read_input(); //read input from the user
