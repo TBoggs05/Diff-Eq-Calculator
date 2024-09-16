@@ -9,6 +9,8 @@
 #include <cmath>
 #include <map>
 #include <functional>
+#include <iterator>
+#include "customExceptions.h"
 
 using MathFunction = std::function<double(double)>; //define namespace for our function map.
 class eulers{
@@ -23,11 +25,12 @@ private:
     std::map<std::string, MathFunction> mathFunctions; //map of all allowed functions in y'.
 
     //Internal/Helper Functions
-    bool handle_implicit_multiplication();//function will return true when completed. loops thru string and inserts multiplciation operators.
+    bool handle_implicit_multiplication(std::string eq);//function will return true when completed. loops thru string and inserts multiplciation operators.
     void read_input(); //read input from the user
-    bool convert_to_postfix();//checks for valid equation, converts to postfix
-    double find_derivative(std::string postfix); //calculate y' after substituting variables.
-    double eulers_calculate();//recursively finds the numerical solution using eulers method. returns value at upper limit of discreted domain.
+    bool convert_to_postfix(std::string& eq);//checks for valid equation, converts to postfix
+    double find_derivative(std::string& postfix); //calculate y' after substituting variables.
+    double calculate_internal_function(std::string& internalFunction);
+    double eulers_calculate(std::string& eq);//recursively finds the numerical solution using eulers method. returns value at upper limit of discreted domain.
 };
 
 

@@ -13,7 +13,7 @@ char menu(){
 
 int main(){
     char input[2];
-    while(input[0] != 'E' && input[0] != 'e'){
+    while(std::tolower(input[0]) !='e'){
         input[0] = menu();
         switch(input[0]){
             case '1':{
