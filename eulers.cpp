@@ -164,8 +164,20 @@ void eulers::start()
 std::cout<<"Eulers Method:"<<std::endl;
 read_input(); 
 errorFlag = false;
+//handle implicit multiplication
+try{
+if(!handle_implicit_multiplication(this->equation)){
+    throw InvalidInputException("Problem with validation of input and implicit multiplication. Try with explicit.");
+}
 if(convert_to_postfix(this->equation)){
     eulers_calculate(this->equation);
+}
+else{
+    throw InvalidInputException("Problem with input detected. Unsucessful conversion to postfix");
+}
+}
+catch(const InvalidInputException& e){
+    std::cerr<<"error with input in conversion to postfix."<<std::endl;
 }
 }
 /*
@@ -343,10 +355,6 @@ else if(h == 0 || floor(((x_upper_limit - x_initial) / h)) - ((x_upper_limit-x_i
     throw InvalidIntervalException("Invalid. Must solve for final X");
    
 }
-//handle implicit multiplication
-if(!handle_implicit_multiplication(eq)){
-    throw InvalidInputException("Problem with validation of input and implicit multiplication. Try with explicit.");
-}
 }
 catch(const InvalidInputException& e){
 errorFlag = true;
@@ -416,20 +424,22 @@ for(int i = 0; i < eq.size();){
                                 std::cout<<"Function"<<std::endl;
                                 if(i < eq.size() && eq[i] == '('){
                                     //start storing internal term, we cant skip it.
-                                    int pc = 1;//parentheses count
+                                    int pc = 0;//parentheses count
                                     //i++;
-                                    while(i < eq.size() && pc > 0){
+                                    do{
                                         if(eq[i] == '('){
                                             pc++;
+                                            std::cout<<"Function parentheses Count: "<<pc<<std::endl;
                                             parentheses_stack.push('(');
                                         }
                                             
                                         else if(eq[i] == ')'){
                                             pc--;
+                                            std::cout<<"Function parentheses Count: "<<pc<<std::endl;
                                             parentheses_stack.pop();
                                         }
                                         postfix+=eq[i++];
-                                    }
+                                    }while(i < eq.size() && pc > 0);
                                 }
                                 else{
                                     std::cerr<<"Invalid Function"<<std::endl;
@@ -444,10 +454,10 @@ for(int i = 0; i < eq.size();){
                             }
                         }
                         postfix+=" ";//space to separate postfix terms
-                        
                     }
                     //if closing parentheses(pop all from stack until open)
                     else if(eq[i] == ')'){
+                        std::cout<<"closed parentheses."<<std::endl;
                         if(!parentheses_stack.empty())//manage parentheses balance
                         parentheses_stack.pop();
                         else//throw error
@@ -493,7 +503,7 @@ while(!operator_stack.empty()){
 }
 //set equation back to postfix
 eq = postfix;
-std::cout<<"\nPOSTFIX: "<<eq<<"\n"<<std::endl;
+std::cout<<"\nPOSTFIX: \n"<<eq<<std::endl;
 if(parentheses_stack.empty())
 return true;
 else{
@@ -737,7 +747,7 @@ for(int i = 0; i < postfix.size(); i++){
                                                 operandStack.pop();
                                              term2 = operandStack.top();
                                                 operandStack.pop();
-                                                std::cout<<term1<<"^"<<term2<<" Is pushed to stack"<<std::endl;
+                                                std::cout<<term2<<"^"<<term1<<" Is pushed to stack"<<std::endl;
                                             operandStack.push(pow(term2, term1));
                                                 break;
                                         default:
@@ -781,7 +791,7 @@ for(int i = 0; i < postfix.size(); i++){
     }
     catch(...){
         errorFlag = true;
-        std::cerr<<"GENERAL ERROR IN FIND_DERIVATIVE()"<<std::endl;
+        std::cout<<"GENERAL ERROR IN FIND_DERIVATIVE()"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
 }
