@@ -1,7 +1,7 @@
 #include "eulers.h"
 //SUPLEMENTAL FUNCTIONS.
 double sec(double x){
-    return 1/cos(x);
+    return 1.0/cos(x);
 }
 double csc(double x){
     return 1/sin(x);
@@ -43,7 +43,7 @@ double log_base(double x, double b){
 bool isValidDomain(std::string functionName, double x){
 const double PI = 3.141592653589793;
 const double EPSILON = 1e-7;
-    if (functionName == "log" || functionName == "log10") {
+    if (functionName == "log" || functionName == "log10" || functionName == "ln" || functionName == "log2" || functionName == "log5") {
         // Logarithmic functions are undefined for x <= 0
         return x > 0;
     } else if (functionName == "sqrt") {
@@ -51,12 +51,20 @@ const double EPSILON = 1e-7;
         return x >= 0;
     } else if (functionName == "tan" || functionName == "sec") {
         // tan and sec are undefined at odd multiples of pi/2
-        double multiple = x / (PI / 2);
-        return std::abs(std::round(multiple) - multiple) >= EPSILON;
+        double multiple = x / (M_PI/2);//checking to see if our domain is a multiple of pi/2 by division
+        if(std::abs(multiple-std::round(multiple)) < EPSILON){ //checks to see if our domain is an integer using epsilon for floating-point rounding errors.
+            int integerMultiple = static_cast<int>(std::round(multiple));
+            return integerMultiple % 2 == 0; //if even multiple, its ok. if odd multiple, not ok.
+        }
+        return true; // not an integer multiple
     } else if (functionName == "csc" || functionName == "cot") {
         // csc and cot are undefined at multiples of pi
-        double multiple = x / PI;
-        return std::abs(std::round(multiple) - multiple) >= EPSILON;
+        double multiple = x / M_PI;
+        
+        if(std::abs(multiple - std::round(multiple)) < EPSILON){
+            return false; // undefined at exact multiples of pi
+        }
+            return true; //function is defined
     } else if (functionName == "acosh") {
         // acosh(x) is only valid for x >= 1
         return x >= 1;
@@ -113,14 +121,14 @@ eulers::eulers(){
     mathFunctions["sqrt"] = static_cast<double(*)(double)>(sqrt);// Square Root (sqrt)
     mathFunctions["ln"] = static_cast<double(*)(double)>(log);// Natural log (ln)
     mathFunctions["log"] = static_cast<double(*)(double)>(log10);// Logarithm base 10
-    mathFunctions["exp"] = static_cast<double(*)(double)>(exp);// Exponential function
+   // mathFunctions["exp"] = static_cast<double(*)(double)>(exp);// Exponential function
     mathFunctions["abs"] = static_cast<double(*)(double)>(abs);// Absolute value
 
     //special log cases of base 2 and base 5 (if u have a weirder case just convert it urself and stfu.)
     //lambda expression notation: our map for value 1 = [capture](parameters) -> return type { function body}
     //essentially creating a mini function capturing(copying) nothing, passed a double to it, and return a call to our custom log function as a double.
-    mathFunctions["log2"] = [](double x) -> double { return log_base(x, 2); };
-    mathFunctions["log5"] = [](double x) -> double { return log_base(x, 5); };
+    //mathFunctions["log2"] = [](double x) -> double { return log_base(x, 2); };
+    //mathFunctions["log5"] = [](double x) -> double { return log_base(x, 5); };
 
     //sec, cos, cot (Since its our custom functions, theres no ambiguity therefore we cast as MathFunction.)
      mathFunctions["sec"] = static_cast<MathFunction>(sec);
@@ -155,6 +163,7 @@ void eulers::start()
 { 
 std::cout<<"Eulers Method:"<<std::endl;
 read_input(); 
+errorFlag = false;
 if(convert_to_postfix(this->equation)){
     eulers_calculate(this->equation);
 }
@@ -201,7 +210,112 @@ Implicit Multiplication Function
 -inserts 
 @RETURN BOOL
 */
-bool eulers::handle_implicit_multiplication(std::string eq){
+bool eulers::handle_implicit_multiplication(std::string& eq){
+std::string temp = "";//blank string to store equation afterwards.
+for(int i = 0; i < eq.size(); i++){
+if(std::isspace(eq[i])){
+    //skip do nothing.
+}
+else if(std::isdigit(eq[i])){//NUMBER
+    if(i-1 >= 0 && eq[i-1] != ' ' && !isOperator(eq[i-1]) && eq[i-1] != '(' && !std::isdigit(eq[i-1])&& eq[i-1] != '.'){ //check that it needs to be inserted before
+       // temp+='*';//insert multiplication
+       // temp+=eq[i];//insert char
+        eq = eq.substr(0,i) + "*" + eq.substr(i, eq.size());
+    }
+    else if(i+1 < eq.size() && eq[i+1] != ' ' && !isOperator(eq[i+1]) && eq[i+1] != ')' && !std::isdigit(eq[i+1]) && eq[i+1] != '.'){ //check that it needs to be inserted after
+        //temp+=eq[i];//insert char
+        // temp+='*';//insert multiplicatoin
+        eq = eq.substr(0,i+1) + "*" + eq.substr(i+1, eq.size());
+    }
+    else{
+       // temp+=eq[i];//insert char
+    }
+}
+else if(std::tolower(eq[i]) == 'e'){
+    if(i-1 >= 0 && std::tolower(eq[i-1]) != 's'){
+        if(i-1 >= 0 && eq[i-1] != ' ' && !isOperator(eq[i-1]) && eq[i-1] != '(' && eq[i-1] == ')'){ //check that it needs to be inserted before
+        //temp+='*';//insert multiplication
+        //temp+=eq[i];//insert char
+        eq = eq.substr(0,i) + "*" + eq.substr(i, eq.size());
+         }
+    }
+    if(i+1 < eq.size() && std::tolower(eq[i+1]) != 's'){
+         if(i+1 < eq.size() && eq[i+1] != ' ' && !isOperator(eq[i+1]) && eq[i+1] != ')'){ //check that it needs to be inserted after
+        //temp+=eq[i];//insert char
+        //temp+='*';//insert multiplicatoin
+        eq = eq.substr(0,i+1) + "*" + eq.substr(i+1, eq.size());
+        }
+    }
+    else{
+    // temp+=eq[i];//insert char
+    }
+}
+else if(std::tolower(eq[i]) == 'p'){
+    if(i+1 < eq.size() && std::tolower(eq[i+1]) != 'i'){
+        temp+=eq[i];
+        i++;
+        if(i+1 < eq.size() && eq[i+1] != ' ' && !isOperator(eq[i+1]) && eq[i+1] != ')'&& eq[i+1] != '('){ //check that it needs to be inserted after
+       // temp+=eq[i];//insert char
+        //temp+='*';//insert multiplicatoin
+        eq = eq.substr(0,i+1) + "*" + eq.substr(i+1, eq.size());
+        }
+         else{
+         //temp+=eq[i];//insert char
+         }
+    }
+    else{
+       // temp+=eq[i];
+    }
+}
+
+else if(std::tolower(eq[i]) == 'x' || std::tolower(eq[i]) == 'y'){//VARIABLE
+    if(i-1 >= 0 && eq[i-1] != ' ' && !isOperator(eq[i-1]) && eq[i-1] != '('){ //check that it needs to be inserted before
+        //temp+='*';//insert multiplication
+        //temp+=eq[i];//insert char
+        eq = eq.substr(0,i) + "*" + eq.substr(i, eq.size());
+    }
+    else if(i+1 < eq.size() && eq[i+1] != ' ' && !isOperator(eq[i+1]) && eq[i+1] != ')'){ //check that it needs to be inserted after
+        //temp+=eq[i];//insert char
+        //temp+='*';//insert multiplicatoin
+        eq = eq.substr(0,i+1) + "*" + eq.substr(i+1, eq.size());
+    }
+    else{
+        temp+=eq[i];//insert char
+    }
+}
+
+else if(eq[i] == '('){//OPEN PARENTHESES
+    if(i-1>=0 && eq[i-1] != ' ' && !isOperator(eq[i-1]) && eq[i-1] != '(' && eq[i-1] != ')'){//check that value before is not space or operator
+        //now validate the term before is not trig.
+        if(std::isalpha(eq[i-1]) && (std::tolower(eq[i-1] != 'x' && std::tolower(eq[i-1] != 'y')&&std::tolower(eq[i-1]!='e')&&std::tolower(eq[i-1]!='i')))){
+           // temp+=eq[i];
+        }
+        else{
+           // temp+='*';
+            //temp+=eq[i];
+            eq = eq.substr(0,i) + "*" + eq.substr(i, eq.size());
+        }
+    }
+    else{
+        //temp+=eq[i];
+    }
+}
+else if(eq[i] == ')'){//CLOSED PARENTHESES
+    if(i+1<eq.size() && eq[i+1] != ' ' && !isOperator(eq[i+1])&& eq[i+1] != '(' && eq[i+1] != ')'){
+       // temp+=eq[i];
+        //temp+='*';
+        eq = eq.substr(0,i+1) + "*" + eq.substr(i+1, eq.size());
+    }
+    else{
+       // temp+=eq[i];
+    }
+}
+else{
+   // temp+=eq[i];
+}
+}
+//eq = temp;
+std::cout<<"Implicit Multiplication Made Explicit: "<<eq<<std::endl;
 return true;
 }
 
@@ -219,16 +333,32 @@ Convert To Postfix Function
 */
 bool eulers::convert_to_postfix(std::string& eq){
 //checks x vs step and upper limit
+try{
 if(x_initial >= x_upper_limit){
-    std::cout<<"Invalid. Upper limit must be greater than x."<<std::endl;
-    return false;
+    std::cerr<<"Invalid. Upper limit must be greater than x."<<std::endl;
+    throw InvalidIntervalException("Invalid. Upper limit must be greater than x.");
 }
 else if(h == 0 || floor(((x_upper_limit - x_initial) / h)) - ((x_upper_limit-x_initial)/h) >= 0.0001){
-    std::cout<<"Invalid. Must solve for final X"<<std::endl;
-    return false;
+    std::cerr<<"Invalid. Must solve for final X"<<std::endl;
+    throw InvalidIntervalException("Invalid. Must solve for final X");
+   
 }
 //handle implicit multiplication
 if(!handle_implicit_multiplication(eq)){
+    throw InvalidInputException("Problem with validation of input and implicit multiplication. Try with explicit.");
+}
+}
+catch(const InvalidInputException& e){
+errorFlag = true;
+return false;
+}
+catch(const InvalidIntervalException& e){
+    errorFlag = true;
+    return false;
+}
+catch(...){
+    errorFlag = true;
+    std::cerr<<"General Error in validation before postfix"<<std::endl;
     return false;
 }
 //convert to postfix
@@ -238,7 +368,7 @@ std::stack<char> operator_stack;
 try{
 for(int i = 0; i < eq.size();){
     //is whitespace
-    if(eq[i] == ' '){
+    if(std::isspace(eq[i])){
         //do nothing. whitespace.
         i++;
     }
@@ -287,11 +417,17 @@ for(int i = 0; i < eq.size();){
                                 if(i < eq.size() && eq[i] == '('){
                                     //start storing internal term, we cant skip it.
                                     int pc = 1;//parentheses count
+                                    //i++;
                                     while(i < eq.size() && pc > 0){
-                                        if(eq[i] == '(')
+                                        if(eq[i] == '('){
                                             pc++;
-                                        else if(eq[i] == ')')
+                                            parentheses_stack.push('(');
+                                        }
+                                            
+                                        else if(eq[i] == ')'){
                                             pc--;
+                                            parentheses_stack.pop();
+                                        }
                                         postfix+=eq[i++];
                                     }
                                 }
@@ -308,6 +444,7 @@ for(int i = 0; i < eq.size();){
                             }
                         }
                         postfix+=" ";//space to separate postfix terms
+                        
                     }
                     //if closing parentheses(pop all from stack until open)
                     else if(eq[i] == ')'){
@@ -332,8 +469,13 @@ for(int i = 0; i < eq.size();){
                         std::cout<<"operator"<<std::endl;
                         //pop all necessary out of stack before pushing
                         while(!operator_stack.empty() && operator_stack.top() != '(' && operatorPriority(eq[i]) <= operatorPriority(operator_stack.top())){
+                            if(eq[i] != '^' || operatorPriority(eq[i]) > operatorPriority(operator_stack.top())){ //handles the fact that ^ is right associative, not left. so must be strictly greater than.
                             postfix+=operator_stack.top();
                             operator_stack.pop();
+                            }
+                            else{
+                                break;
+                            }
                         }
                         operator_stack.push(eq[i]);
                         i++;
@@ -351,7 +493,7 @@ while(!operator_stack.empty()){
 }
 //set equation back to postfix
 eq = postfix;
-std::cout<<"POSTFIX: "<<eq<<std::endl;
+std::cout<<"\nPOSTFIX: "<<eq<<"\n"<<std::endl;
 if(parentheses_stack.empty())
 return true;
 else{
@@ -359,18 +501,22 @@ throw UnbalancedOperatorsException("Error. Unbalanced Parentheses Detected In Eq
 }
 }
 catch (const UnbalancedOperatorsException& e){
+    errorFlag = true;
 std::cerr<<"Unbalanced Operators in Postfix Conversion"<<std::endl;
 return false;
 }
 catch (const UnbalancedParenthesesException& e){
+    errorFlag = true;
     std::cerr<<"Unbalanced Parentheses in Postfix Conversion"<<std::endl;
 return false;
 }
 catch (const InvalidInputException& e){
+    errorFlag = true;
     std::cerr<<"Invalid Input Exception in Postfix Conversion"<<std::endl;
 return false;
 }
 catch(...){
+    errorFlag = true;
     std::cerr<<"General Error Found in Postfix Conversion."<<std::endl;
     return false;
 }
@@ -396,10 +542,12 @@ double eulers::calculate_internal_function(std::string& internalFunction){
     }
     }
     catch(const InvalidDomainException& e){
+        errorFlag = true;
         std::cerr<<"Invalid Domain. Did you leave a function blank? I.E sin()"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(...){
+        errorFlag = true;
         std::cerr<<"PROBLEM IN CALCULATION OF INTERNAL FUNCTION." <<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -604,27 +752,35 @@ for(int i = 0; i < postfix.size(); i++){
     //TODO:IMPLEMENT LOGGING IN CATCH CASES.
     //ALSO SEND ERROR TO FRONTEND USING FRAMEWORK
     catch(const DivideByZeroException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const UnbalancedOperatorsException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const InvalidDomainException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const InvalidFunctionException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const UnbalancedParenthesesException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const InvalidInputException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const DoesNotExistException& e){
+        errorFlag = true;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(...){
+        errorFlag = true;
         std::cerr<<"GENERAL ERROR IN FIND_DERIVATIVE()"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -641,9 +797,11 @@ if(!operandStack.empty()){
 }
 }
 catch(const UnbalancedOperatorsException& e){
+    errorFlag = true;
     return std::numeric_limits<double>::quiet_NaN();
 }
 catch(...){
+        errorFlag = true;
         std::cerr<<"GENERAL ERROR IN FIND_DERIVATIVE() -X"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -667,7 +825,7 @@ double eulers::eulers_calculate(std::string& eq){
             std::string temp = "="+std::to_string(this->y_initial)+"+"+std::to_string(h)+"*"+std::to_string(find_derivative(eq));
             this->y_initial = this->y_initial + h * find_derivative(eq);
             std::cout<<this->y_initial<<temp<<std::endl;
-            if(std::abs(this->y_initial-std::numeric_limits<double>::quiet_NaN()) < epsilon){
+            if(errorFlag){
                 return y_initial;
             }
             this->x_initial+=this->h;

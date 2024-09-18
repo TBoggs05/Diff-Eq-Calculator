@@ -39,6 +39,9 @@ class DoesNotExistException : public std::runtime_error{
     public:
         DoesNotExistException(const std::string& message) : std::runtime_error("Answer is Non-Real or Infinite: " + message){}
 };
-
+class InvalidIntervalException : public std::runtime_error{
+    public:
+        InvalidIntervalException(const std::string& message) : std::runtime_error("Interval Entered is Not Valid: " + message){}
+};
 
 #endif
