@@ -39,7 +39,8 @@ sqrt, ln, log, abs
 Currently 28 functions total.
 (for logs that dont conform to logbase10 or ln, use change of base formula before inputting)
 
-To ensure accurate results:
+TO ENSURE ACCURATE RESULTS:
+
 -Enter the problem in its most reduced form. In the current version, 
 the calculator can't catch edge cases where a function may reduce via division,
 and can produce a dividing by zero error.
@@ -51,6 +52,12 @@ E.G: Sin(12x-2) or cos(2x), not cosx
 -Functions are to be typed in lowercase. sin, cos, tan, etc.
 
 -exponentiation of functions is to be denoted as (sin(x))^2, NOT sin^2(x), to avoid ambiguity.
+
+-enter inverse trig as asin, acos, etc.. not arcsin or sin^-1
+
+-Decimals should be entered as 0.123, not .123
+
+-Note that this program does not support factorials or complex values in the current version.
 -------------------------------------------------------------------------------------------------------------------
 
 
@@ -60,6 +67,7 @@ In future versions of the application, the following functionality will ideally 
 -GUI
 -Option for Taylors Method using expansion of power series
 -Calculating %error given an exact solution
+-allow more fluid/loose notation for inputs(see limitations section)
 -Monitor Roundoff error more effectively using higher decimal places and epsilon comparisons(method mentioned in Stanley J. Farlow's Intro to Diff Eq.)
 -Graphing
 ------------------------------------------------------------------------------------------------------------------
