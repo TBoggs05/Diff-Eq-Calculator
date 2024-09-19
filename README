@@ -1,0 +1,65 @@
+DIFFERENTIAL EQUATIONS SOLVER V1.0
+----------------------------------
+Developed By: Trace Boggs
+----------------------------------
+
+PROGRAM DESCRIPTION:
+-------------------------------------------------------------------
+The program uses Euler's Method for approximating
+a first-order Differential Equation. Given the differential equation
+Y', a step value h,and a domain from X0 to X1, my application 
+calculates a numerical solution to the differential equation
+at the end domain, and every step point between the start and end
+of the domain.
+-------------------------------------------------------------------
+
+% ERROR IN EULERS METHOD:
+------------------------------------------------------------------------------------------------------------------------------------
+While my program accounts for much floating-point arithmetic errors and rounding errors, the user must be aware of 
+discretization error and rounding error tradeoff.
+Outisde of the very small rounding the computer may do naturally, Eulers method's % error is dependent on the choice of step.
+Essentially, the bigger your step, the higher your % error will be. However, the smaller your step, the more steps
+will have to be computed. I.E, your step is proportional to your discretization error, and inversely proportional to the number of 
+computations(and thus the number of times a rounding error may occur). As such, it is up to the user to experiment and choose a
+proper step value for h.
+-------------------------------------------------------------------------------------------------------------------------------------
+
+LIMITATIONS:
+--------------------------------------------------------------------------------------------------------------------
+Currently, this program supports the following functions:
+sin, cos, tan,
+asin, acos, atan,
+sinh, cosh, coth,
+asinh, acosh, acoth,
+sec, csc, cot,
+asec, acsc, acot,
+sech, csch, coth,
+asech, acsch, acoth,
+sqrt, ln, log, abs
+Currently 28 functions total.
+(for logs that dont conform to logbase10 or ln, use change of base formula before inputting)
+
+To ensure accurate results:
+-Enter the problem in its most reduced form. In the current version, 
+the calculator can't catch edge cases where a function may reduce via division,
+and can produce a dividing by zero error.
+E.G: (y^2)/y where y = 0 will produce an error.
+
+-Enter functions with the term they're being applied to in parentheses.
+E.G: Sin(12x-2) or cos(2x), not cosx
+
+-Functions are to be typed in lowercase. sin, cos, tan, etc.
+
+-exponentiation of functions is to be denoted as (sin(x))^2, NOT sin^2(x), to avoid ambiguity.
+-------------------------------------------------------------------------------------------------------------------
+
+
+FUTURE UPDATES:
+------------------------------------------------------------------------------------------------------------------
+In future versions of the application, the following functionality will ideally be implemented:
+-GUI
+-Option for Taylors Method using expansion of power series
+-Calculating %error given an exact solution
+-Monitor Roundoff error more effectively using higher decimal places and epsilon comparisons(method mentioned in Stanley J. Farlow's Intro to Diff Eq.)
+-Graphing
+------------------------------------------------------------------------------------------------------------------

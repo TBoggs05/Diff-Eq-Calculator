@@ -23,6 +23,7 @@ int main(){
             }
                 case '2':{
                 cout<<"SERIES Calculator!\n"<<endl;
+                cout<<"Will be implemented at a future date...\n"<<endl;
                 break;
                 }
                     case 'E':

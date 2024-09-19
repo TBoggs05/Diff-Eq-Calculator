@@ -251,7 +251,7 @@ else if(std::tolower(eq[i]) == 'e'){
         eq = eq.substr(0,i) + "*" + eq.substr(i, eq.size());
          }
     }
-    if(i+1 < eq.size() && std::tolower(eq[i+1]) != 's'){
+    if(i+1 < eq.size() && std::tolower(eq[i+1]) != 'c'){
          if(i+1 < eq.size() && eq[i+1] != ' ' && !isOperator(eq[i+1]) && eq[i+1] != ')'){ //check that it needs to be inserted after
         //temp+=eq[i];//insert char
         //temp+='*';//insert multiplicatoin
@@ -382,14 +382,14 @@ for(int i = 0; i < eq.size();){
     }
     //is open parentheses
         else if(eq[i] == '('){
-            std::cout<<"openParentheses"<<std::endl;
+       //UNCOMMENT FOR DEBUGGING     std::cout<<"openParentheses"<<std::endl;
             //magage parentheses balance
             parentheses_stack.push(eq[i]);
             operator_stack.push(eq[i]);
             i++;
         }           //is digit
                     else if(std::isdigit(eq[i])){ 
-                        std::cout<<"digit"<<std::endl;
+                   //UNCOMMENT FOR DEBUGGING     std::cout<<"digit"<<std::endl;
                         postfix+=eq[i++];
                         while(i < eq.size() && std::isdigit(eq[i])){
                             postfix+=eq[i++];
@@ -406,7 +406,7 @@ for(int i = 0; i < eq.size();){
                     else if(std::isalpha(eq[i])){
                         
                         if(std::tolower(eq[i]) == 'x' || tolower(eq[i]) == 'y' || tolower(eq[i]) == 'e'){
-                            std::cout<<"variable"<<std::endl;
+                      //UNCOMMENT FOR DEBUGGING      std::cout<<"variable"<<std::endl;
                         postfix+=eq[i];
                         i++;
                         }
@@ -416,12 +416,12 @@ for(int i = 0; i < eq.size();){
                                 s+=eq[i++];
                             }
                             if(s.size() == 2 && std::tolower(s[0]) == 'p' && std::tolower(s[1]) == 'i'){
-                                std::cout<<"PI"<<std::endl;
+                           //UNCOMMENT FOR DEBUGGING     std::cout<<"PI"<<std::endl;
                                 postfix+=s;
                             }
                             else if(mathFunctions.find(s) != mathFunctions.end()){
                                 postfix+=s;
-                                std::cout<<"Function"<<std::endl;
+                            //UNCOMMENT FOR DEBUGGING    std::cout<<"Function"<<std::endl;
                                 if(i < eq.size() && eq[i] == '('){
                                     //start storing internal term, we cant skip it.
                                     int pc = 0;//parentheses count
@@ -429,13 +429,13 @@ for(int i = 0; i < eq.size();){
                                     do{
                                         if(eq[i] == '('){
                                             pc++;
-                                            std::cout<<"Function parentheses Count: "<<pc<<std::endl;
+                                      //UNCOMMENT FOR DEBUGGING      std::cout<<"Function parentheses Count: "<<pc<<std::endl;
                                             parentheses_stack.push('(');
                                         }
                                             
                                         else if(eq[i] == ')'){
                                             pc--;
-                                            std::cout<<"Function parentheses Count: "<<pc<<std::endl;
+                                        //UNCOMMENT FOR DEBBUGING    std::cout<<"Function parentheses Count: "<<pc<<std::endl;
                                             parentheses_stack.pop();
                                         }
                                         postfix+=eq[i++];
@@ -457,7 +457,7 @@ for(int i = 0; i < eq.size();){
                     }
                     //if closing parentheses(pop all from stack until open)
                     else if(eq[i] == ')'){
-                        std::cout<<"closed parentheses."<<std::endl;
+                      //UNCOMMENT FOR DEBUGGING  std::cout<<"closed parentheses."<<std::endl;
                         if(!parentheses_stack.empty())//manage parentheses balance
                         parentheses_stack.pop();
                         else//throw error
@@ -476,9 +476,22 @@ for(int i = 0; i < eq.size();){
                     }
                     //operator. Push/Pop as necessary
                     else if(isOperator(eq[i])){
-                        std::cout<<"operator"<<std::endl;
+                    //UNCOMMENT FOR DEBUGGING    std::cout<<"operator"<<std::endl;
+
+                        //logic to handle negative numbers
+                            if(eq[i] == '-'){
+                                //is a negative, combine it with the term.
+                                if(i == 0 || (isOperator(eq[i-1]) || eq[i-1] == '(')){
+                                    postfix+="~";//WE USE THIS INSTEAD OF - FOR CLARITY IN CALCULATION.
+                                    i++;
+                                }
+                                else{
+                                    //do nothing. needs to proceed to operator code.
+                                }
+                            }
+
                         //pop all necessary out of stack before pushing
-                        while(!operator_stack.empty() && operator_stack.top() != '(' && operatorPriority(eq[i]) <= operatorPriority(operator_stack.top())){
+                        while(isOperator(eq[i]) && !operator_stack.empty() && operator_stack.top() != '(' && operatorPriority(eq[i]) <= operatorPriority(operator_stack.top())){
                             if(eq[i] != '^' || operatorPriority(eq[i]) > operatorPriority(operator_stack.top())){ //handles the fact that ^ is right associative, not left. so must be strictly greater than.
                             postfix+=operator_stack.top();
                             operator_stack.pop();
@@ -487,8 +500,10 @@ for(int i = 0; i < eq.size();){
                                 break;
                             }
                         }
-                        operator_stack.push(eq[i]);
-                        i++;
+                        if(isOperator(eq[i])){
+                            operator_stack.push(eq[i]);
+                            i++;
+                        }
                     }
                     //throw error
                     else{
@@ -503,7 +518,7 @@ while(!operator_stack.empty()){
 }
 //set equation back to postfix
 eq = postfix;
-std::cout<<"\nPOSTFIX: \n"<<eq<<std::endl;
+//UNCOMMENT FOR DEBUGGING std::cout<<"\nPOSTFIX: \n"<<eq<<std::endl;
 if(parentheses_stack.empty())
 return true;
 else{
@@ -544,7 +559,7 @@ double eulers::calculate_internal_function(std::string& internalFunction){
         throw InvalidDomainException("Invalid Domain. Did you Leave a function blank? I.E sin()");
     }
     if(convert_to_postfix(internalFunction)){ //try to convert to postfix
-        std::cout<<"EVALUATING INTERNAL OF FUNCTION"<<std::endl;
+       //UNCOMMENT FOR DEBUGINNG std::cout<<"EVALUATING INTERNAL OF FUNCTION"<<std::endl;
        internal = find_derivative(internalFunction); //if successful, re-use find_derivative to calculate.
     }
     else{
@@ -573,26 +588,48 @@ Find Derivative Function
 double eulers::find_derivative(std::string& postfix){
 double dy = 0;
 std::stack<double> operandStack;
+bool negativeFlag;
 for(int i = 0; i < postfix.size(); i++){
     try{
+        negativeFlag = false;
+        //negative check.
+    if(postfix[i] == '~'){
+        if(i+1 < postfix.size()){
+            negativeFlag = true;
+            i++;
+        }
+        else{
+            throw InvalidInputException("Invalid Input. Check your '-' signs.");
+        }
+    }
+
     if(postfix[i] == ' '){/*do nothing. Whitespace.*/}
         //pushes x value onto stack
         else if(std::tolower(postfix[i]) == 'x'){
-            std::cout<<"substituting x for "<<x_initial<<std::endl;
+        //UNCOMMENT FOR DEBUGGING    std::cout<<"substituting x for "<<x_initial<<std::endl;
+            if(!negativeFlag)
             operandStack.push(this->x_initial); 
+            else
+            operandStack.push(-1*this->x_initial);
         }
             //pushes y value onto stack
             else if(std::tolower(postfix[i]) == 'y'){
-                std::cout<<"substituting y for "<<y_initial<<std::endl;
+              //UNCOMMENT FOR DEBUGGING  std::cout<<"substituting y for "<<y_initial<<std::endl;
+                if(!negativeFlag)
                 operandStack.push(this->y_initial); 
+                else
+                operandStack.push(-1*this->y_initial);
             }
                 // will push the value of e^1 onto stack. 
                 else if(postfix[i] == 'e'){
+                    if(!negativeFlag)
                     operandStack.push(std::exp(1.0)); 
+                    else
+                    operandStack.push(-1*std::exp(1.0));
                 }
                     //handles converting multi digit values from string to double, including decimals.
                     else if(std::isdigit(postfix[i]) || postfix[i] == '.'){ 
-                        double value = 0;
+                        double value = 0.0;
                         while(std::isdigit(postfix[i])){
                         value = value * 10 + (postfix[i]-'0');
                         i++;
@@ -603,7 +640,7 @@ for(int i = 0; i < postfix.size(); i++){
                             i++;//move past decimal.
                             int placecount = 1;
                             while(std::isdigit(postfix[i])){
-                                value += (1/(10*placecount++)) * (postfix[i] - '0');
+                                value = value + (1.0/(std::pow(10,placecount++))) * (postfix[i] - '0');
                                 i++;
                             }
                             if(std::isspace(postfix[i])){
@@ -613,14 +650,21 @@ for(int i = 0; i < postfix.size(); i++){
                                 throw InvalidInputException("Invalid Decimal Input");
                             }
                         }
-                        operandStack.push(value); i--; //decrement to stop weird behaviour.
+                        if(!negativeFlag)
+                        operandStack.push(value); 
+                        else
+                        operandStack.push(-1*value);
+                        i--; //decrement to stop weird behaviour.
                     }
                         
                         else if(postfix[i] == 'p' || postfix[i] == 'P'){ //push pi onto thing.
                             if(i+1 < postfix.size()){
                                 if(postfix[i+1] == 'i' || postfix[i+1] == 'I'){
                                     i++;
+                                    if(!negativeFlag)
                                     operandStack.push(M_PI);
+                                    else
+                                    operandStack.push(-1*M_PI);
                                 }
                                 else{
                                     //throw error
@@ -682,8 +726,11 @@ for(int i = 0; i < postfix.size(); i++){
                                                 std::cerr << "Error: result is infinite (undefined operation)." << std::endl;
                                                 }
                                                 else{
-                                                    std::cout<<result<<" is pushed to stack"<<std::endl;
+                                            //UNCOMMENT FOR DEBUGGING    std::cout<<result<<" is pushed to stack"<<std::endl;
+                                                if(!negativeFlag)
                                                 operandStack.push(result);
+                                                else
+                                                operandStack.push(-1*result);
                                                 }
                                             }
                                     }
@@ -708,7 +755,7 @@ for(int i = 0; i < postfix.size(); i++){
                                                 operandStack.pop();
                                             term2 = operandStack.top();
                                                 operandStack.pop();
-                                            std::cout<<term1<<"+"<<term2<<" Is pushed to stack"<<std::endl;
+                                        //UNCOMMENT FOR DEBUGGING    std::cout<<term1<<"+"<<term2<<" Is pushed to stack"<<std::endl;
                                             operandStack.push(term1+term2);
                                                 break;
                                         case '-':
@@ -716,7 +763,7 @@ for(int i = 0; i < postfix.size(); i++){
                                                 operandStack.pop();
                                             term2 = operandStack.top();
                                                 operandStack.pop();
-                                            std::cout<<term1<<"-"<<term2<<" Is pushed to stack"<<std::endl;
+                                         //UNCOMMENT FOR DEBUGGING   std::cout<<term1<<"-"<<term2<<" Is pushed to stack"<<std::endl;
                                             operandStack.push(term2-term1);
                                                 break;
                                         case '/':
@@ -725,7 +772,7 @@ for(int i = 0; i < postfix.size(); i++){
                                             term2 = operandStack.top();
                                                 operandStack.pop();
                                             if(term1 != 0){
-                                            std::cout<<term1<<"/"<<term2<<" Is pushed to stack"<<std::endl;
+                                          //UNCOMMENT FOR DEBUGGING  std::cout<<term1<<"/"<<term2<<" Is pushed to stack"<<std::endl;
                                             operandStack.push(term2/term1);
                                             }
                                             else{
@@ -739,7 +786,7 @@ for(int i = 0; i < postfix.size(); i++){
                                                 operandStack.pop();
                                             term2 = operandStack.top();
                                                 operandStack.pop();
-                                                std::cout<<term1<<"*"<<term2<<" Is pushed to stack"<<std::endl;
+                                               //UNCOMMENT FOR DEBUGGING std::cout<<term1<<"*"<<term2<<" Is pushed to stack"<<std::endl;
                                             operandStack.push(term1*term2);
                                                 break;
                                         case '^':
@@ -747,7 +794,7 @@ for(int i = 0; i < postfix.size(); i++){
                                                 operandStack.pop();
                                              term2 = operandStack.top();
                                                 operandStack.pop();
-                                                std::cout<<term2<<"^"<<term1<<" Is pushed to stack"<<std::endl;
+                                               //UNCOMMENT FOR DEBUGGING std::cout<<term2<<"^"<<term1<<" Is pushed to stack"<<std::endl;
                                             operandStack.push(pow(term2, term1));
                                                 break;
                                         default:
@@ -815,7 +862,7 @@ catch(...){
         std::cerr<<"GENERAL ERROR IN FIND_DERIVATIVE() -X"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
-std::cout<<dy<<" is the derivative of this iteration"<<std::endl;
+//UNCOMMENT FOR DEBUGGING std::cout<<dy<<" is the derivative of this iteration"<<std::endl;
 return dy;
 }
 /*
@@ -834,7 +881,7 @@ double eulers::eulers_calculate(std::string& eq){
             std::cout<<"Y("<<this->x_initial<<") = "<<this->y_initial<<std::endl;
             std::string temp = "="+std::to_string(this->y_initial)+"+"+std::to_string(h)+"*"+std::to_string(find_derivative(eq));
             this->y_initial = this->y_initial + h * find_derivative(eq);
-            std::cout<<this->y_initial<<temp<<std::endl;
+            std::cout<<this->y_initial<<temp<<std::endl<<std::endl;
             if(errorFlag){
                 return y_initial;
             }
