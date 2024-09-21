@@ -41,7 +41,6 @@ double log_base(double x, double b){
 }
 
 bool isValidDomain(std::string functionName, double x){
-const double PI = 3.141592653589793;
 const double EPSILON = 1e-7;
     if (functionName == "log" || functionName == "log10" || functionName == "ln" || functionName == "log2" || functionName == "log5") {
         // Logarithmic functions are undefined for x <= 0
