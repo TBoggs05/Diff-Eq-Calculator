@@ -3,6 +3,15 @@ DIFFERENTIAL EQUATIONS SOLVER V1.0
 Developed By: Trace Boggs
 ----------------------------------
 
+*HOW TO RUN*
+------------------------------------------------------------------------------------------
+1.) Clone or Download the Repository
+2.) navigate to the repository
+3.) run the make file (type "make" in console once navigated to the directory in console)
+4.) now, run the mainrunner file by typing ./mainRunner
+5.) Now follow the instructions!
+-------------------------------------------------------------------------------------------
+
 PROGRAM DESCRIPTION:
 -------------------------------------------------------------------
 The program uses Euler's Method for approximating
