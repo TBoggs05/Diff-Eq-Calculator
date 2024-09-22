@@ -160,6 +160,7 @@ Function used to start running the calculator
 */
 void eulers::start()
 { 
+    answers.clear();
 std::cout<<"Eulers Method:"<<std::endl;
 read_input(); 
 errorFlag = false;
@@ -176,7 +177,66 @@ else{
 }
 }
 catch(const InvalidInputException& e){
+    if(!errorFlag){
+        errorFlag = true;
+        errString = e.msg;
+    }
+    
     std::cerr<<"error with input in conversion to postfix."<<std::endl;
+}
+}
+/*
+Start Function
+Function used to start running the calculator
+doesnt read input, just uses passed data from JSON parsing.
+handles error checking in house.
+@BOOL
+*/
+bool eulers::start(std::string e, double xI, double step_val, double xE, double yI)
+{ 
+answers.clear();
+std::cout<<"Eulers Method:"<<std::endl;
+try{
+this->x_initial=xI;
+this->h = step_val;
+this->equation = e;
+this->x_upper_limit = xE;
+this->y_initial = yI;
+}
+catch(...){ //SPAGHETTI CODE! (ELEGANCE IS IN THE EYE OF THE BEHOLDER)
+    try{
+        throw InvalidInputException("Invalid Input Types. Y' is an equation, and the other inputs must be numbers!");
+    }
+    catch(const InvalidInputException& e){
+        if(!errorFlag){
+        errString = e.msg;
+        errorFlag = true;
+        }
+        return false;
+    
+    }
+}
+
+errorFlag = false;
+//handle implicit multiplication
+try{
+if(!handle_implicit_multiplication(this->equation)){
+    throw InvalidInputException("Problem with validation of input and implicit multiplication. Try with explicit.");
+}
+if(convert_to_postfix(this->equation)){
+    return true;
+}
+else{
+    throw InvalidInputException("Problem with input detected. Unsucessful conversion to postfix");
+}
+}
+catch(const InvalidInputException& e){
+    if(!errorFlag){
+    errString = e.msg;
+    errorFlag = true;
+    }
+    std::cerr<<"error with input in conversion to postfix."<<std::endl;
+    return false;
 }
 }
 /*
@@ -346,25 +406,34 @@ bool eulers::convert_to_postfix(std::string& eq){
 //checks x vs step and upper limit
 try{
 if(x_initial >= x_upper_limit){
-    std::cerr<<"Invalid. Upper limit must be greater than x."<<std::endl;
-    throw InvalidIntervalException("Invalid. Upper limit must be greater than x.");
+    std::cerr<<"Invalid. X1 must be greater than X0."<<std::endl;
+    throw InvalidIntervalException("Invalid. X1 must be greater than Xo.");
 }
-else if(h == 0 || floor(((x_upper_limit - x_initial) / h)) - ((x_upper_limit-x_initial)/h) >= 0.0001){
+else if(h == 0 || abs(floor(((x_upper_limit - x_initial) / h)) - ((x_upper_limit-x_initial)/h)) >= 0.0001){
     std::cerr<<"Invalid. Must solve for final X"<<std::endl;
     throw InvalidIntervalException("Invalid. Must solve for final X");
-   
 }
 }
 catch(const InvalidInputException& e){
+if(!errorFlag){
+errString = e.msg;
 errorFlag = true;
+}
 return false;
 }
 catch(const InvalidIntervalException& e){
+    if(!errorFlag){
+    errString = e.msg;
     errorFlag = true;
+    }
+    
     return false;
 }
 catch(...){
+    if(!errorFlag){
+    errString = "General Error in validation before postfix.";
     errorFlag = true;
+    } 
     std::cerr<<"General Error in validation before postfix"<<std::endl;
     return false;
 }
@@ -525,22 +594,35 @@ throw UnbalancedOperatorsException("Error. Unbalanced Parentheses Detected In Eq
 }
 }
 catch (const UnbalancedOperatorsException& e){
+    if(!errorFlag){
+    errString = e.msg;
     errorFlag = true;
+    }
+    
 std::cerr<<"Unbalanced Operators in Postfix Conversion"<<std::endl;
 return false;
 }
 catch (const UnbalancedParenthesesException& e){
+    if(!errorFlag){
+    errString = e.msg;
     errorFlag = true;
+    }
     std::cerr<<"Unbalanced Parentheses in Postfix Conversion"<<std::endl;
 return false;
 }
 catch (const InvalidInputException& e){
+    if(!errorFlag){
+    errString = e.msg;
     errorFlag = true;
+    }
     std::cerr<<"Invalid Input Exception in Postfix Conversion"<<std::endl;
 return false;
 }
 catch(...){
-    errorFlag = true;
+    if(!errorFlag){
+        errString = "General Error Found in Postfix Conversion.";
+        errorFlag = true;
+    } 
     std::cerr<<"General Error Found in Postfix Conversion."<<std::endl;
     return false;
 }
@@ -566,12 +648,18 @@ double eulers::calculate_internal_function(std::string& internalFunction){
     }
     }
     catch(const InvalidDomainException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        }
         std::cerr<<"Invalid Domain. Did you leave a function blank? I.E sin()"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(...){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = "Problem in calculation of internal function. Check your functions inputs/domains!";
+            errorFlag = true;
+        }
         std::cerr<<"PROBLEM IN CALCULATION OF INTERNAL FUNCTION." <<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -808,35 +896,60 @@ for(int i = 0; i < postfix.size(); i++){
     //TODO:IMPLEMENT LOGGING IN CATCH CASES.
     //ALSO SEND ERROR TO FRONTEND USING FRAMEWORK
     catch(const DivideByZeroException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        }  
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const UnbalancedOperatorsException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        }
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const InvalidDomainException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        } 
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const InvalidFunctionException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        }
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const UnbalancedParenthesesException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        } 
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const InvalidInputException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        }
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(const DoesNotExistException& e){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = e.msg;
+            errorFlag = true;
+        }
         return std::numeric_limits<double>::quiet_NaN();
     }
     catch(...){
-        errorFlag = true;
+        if(!errorFlag){
+            errString = "Error while calculating the equation for Y'. Check your input";
+            errorFlag = true;
+        }
+        
         std::cout<<"GENERAL ERROR IN FIND_DERIVATIVE()"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -853,11 +966,18 @@ if(!operandStack.empty()){
 }
 }
 catch(const UnbalancedOperatorsException& e){
-    errorFlag = true;
+    if(!errorFlag){
+        errString = e.msg;
+        errorFlag = true;
+    }
+    
     return std::numeric_limits<double>::quiet_NaN();
 }
 catch(...){
+    if(!errorFlag){
+        errString = "Error while calculating the derivative. Check your inputs.";
         errorFlag = true;
+    }
         std::cerr<<"GENERAL ERROR IN FIND_DERIVATIVE() -X"<<std::endl;
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -873,14 +993,19 @@ double eulers::eulers_calculate(std::string& eq){
  std::cout<<"calculating.."<<std::endl;
  double epsilon = 0.0001;
     if(std::abs(this->x_upper_limit - this->x_initial) < epsilon){
-        std::cout<<"The numerical solution of Y("<<this->x_upper_limit<<") is "<<this->y_initial<<std::endl;
+        std::string a = "The numerical solution of Y("+std::to_string(this->x_upper_limit)+") is "+std::to_string(this->y_initial);
+        answers.push_back(a);
+        std::cout<<a<<std::endl;
         return this->y_initial;
     }    
     else{
-            std::cout<<"Y("<<this->x_initial<<") = "<<this->y_initial<<std::endl;
+            std::string a = "Y("+std::to_string(this->x_initial)+") ="+std::to_string(this->y_initial);
+            std::cout<<a<<std::endl;
             std::string temp = "="+std::to_string(this->y_initial)+"+"+std::to_string(h)+"*"+std::to_string(find_derivative(eq));
             this->y_initial = this->y_initial + h * find_derivative(eq);
             std::cout<<this->y_initial<<temp<<std::endl<<std::endl;
+             answers.push_back((a));//push the value at that step.
+             answers.push_back((std::to_string(this->y_initial)+temp));//push the calculation
             if(errorFlag){
                 return y_initial;
             }
