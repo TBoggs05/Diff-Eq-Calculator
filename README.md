@@ -10,3 +10,5 @@ The frontend is static HTML, CSS, and JS. Due to the simplicity of the current s
 ____________________________________________________________________________________________________________
 
 Feel free to download the code for yourself and modify it! Its super basic, but its my first real project handling backends and RESTful API logic so the code may be a bit messy in some places.
+
+NOTE: there may be discrepancies between this branch and the website. This is because I plan to add more to this project over time, in small pieces, which may or may not be deployed on the site.
