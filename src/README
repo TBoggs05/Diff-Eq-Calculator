@@ -64,7 +64,6 @@ E.G: Sin(12x-2) or cos(2x), not cosx
 FUTURE UPDATES:
 ------------------------------------------------------------------------------------------------------------------
 In future versions of the application, the following functionality will ideally be implemented:
--GUI
 -Option for Taylors Method using expansion of power series
 -Calculating %error given an exact solution
 -allow more fluid/loose notation for inputs(see limitations section)
